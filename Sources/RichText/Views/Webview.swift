@@ -30,10 +30,9 @@ struct WebView: UIViewRepresentable {
         webview.scrollView.bounces = false
         webview.navigationDelegate = context.coordinator
         webview.scrollView.isScrollEnabled = false
-        
-        DispatchQueue.main.async {
-            let bundleURL = Bundle.main.bundleURL
-            webview.loadHTMLString(generateHTML(), baseURL: bundleURL)
+
+        Task(priority: .userInitiated) {
+            await updateHTML(in: webview)
         }
         
         webview.isOpaque = false
@@ -44,9 +43,17 @@ struct WebView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
+        Task(priority: .userInitiated) {
+            await updateHTML(in: uiView)
+        }
+    }
+
+    private func updateHTML(in webView: WKWebView) async {
+        let html = generateHTML()
+
         DispatchQueue.main.async {
             let bundleURL = Bundle.main.bundleURL
-            uiView.loadHTMLString(generateHTML(), baseURL: bundleURL)
+            webView.loadHTMLString(html, baseURL: bundleURL)
         }
     }
     
