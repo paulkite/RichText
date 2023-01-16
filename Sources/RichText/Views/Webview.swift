@@ -66,7 +66,9 @@ extension WebView {
         public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             webView.evaluateJavaScript("document.documentElement.scrollHeight", completionHandler: { (height, _) in
                 DispatchQueue.main.async {
-                    self.parent.dynamicHeight = height as! CGFloat
+                    if let height = height as? CGFloat {
+                        self.parent.dynamicHeight = height
+                    }
                 }
             })
         }
